@@ -12,27 +12,25 @@ function createCustomElement(element, className, innerText) {
   return e;
 }
 
-function createProductItemElement({ id: sku, title: name, thumbnail: image }) {
-  const section = document.createElement('section');
-  section.className = 'item';
-
-  section.appendChild(createCustomElement('span', 'item__sku', sku));
-  section.appendChild(createCustomElement('span', 'item__title', name));
-  section.appendChild(createProductImageElement(image));
-  section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
-
-  return section;
-}
-
 function getSkuFromProductItem(item) {
   return item.querySelector('span.item__sku').innerText;
 }
 
-function cartItemClickListener(event) {
-  // coloque seu código aqui
+function createProductItemElement({ id: sku, title: name, thumbnail: image }) {
+  const section = document.createElement('section');
+  section.className = 'item';  
+  section.appendChild(createCustomElement('span', 'item__sku', sku));
+  section.appendChild(createCustomElement('span', 'item__title', name));
+  section.appendChild(createProductImageElement(image));
+  section.appendChild(createCustomElement('button', 'item__add', 'Adicionar ao carrinho!'));
+  // addListenerButton();
+  return section;
+}
+function cartItemClickListener({ target }) {
+  target.remove();
 }
 
-function createCartItemElement({ sku, name, salePrice }) {
+function createCartItemElement({ id: sku, title: name, price: salePrice }) {  
   const li = document.createElement('li');
   li.className = 'cart__item';
   li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
@@ -40,10 +38,28 @@ function createCartItemElement({ sku, name, salePrice }) {
   return li;
 }
 
-window.onload = async () => {
-    const computersList = document.querySelector('.items');
+const criaLista = async (idProduct) => {
+  const { id, title, price } = await fetchItem(idProduct);
+  const valores = createCartItemElement({ id, title, price });
+  return valores;
+};
+
+const addListenerButton = () => {
+  const olPai = document.querySelector('.cart__items');
+  console.log(olPai);
+  const buttons = document.querySelectorAll('.item__add');
+  buttons.forEach((button) => button.addEventListener('click', async ({ target }) => {
+    const itemId = getSkuFromProductItem(target.parentNode);
+    const li = await criaLista(itemId);
+    olPai.appendChild(li);
+  }));  
+};
+
+window.onload = async () => {  
+  const computersList = document.querySelector('.items');
   const data = await fetchProducts('computador');
   data.forEach((elem) => {
     computersList.appendChild(createProductItemElement(elem));
   });
+  addListenerButton();
 };
