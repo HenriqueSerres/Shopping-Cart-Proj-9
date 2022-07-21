@@ -8,7 +8,6 @@ const fetchProducts = async (computador) => {
   const result = await fetch(url);
   return result.json();  
 };
-// fetchProducts();
 
 if (typeof module !== 'undefined') {
   module.exports = {
